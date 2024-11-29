@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:latest  # Use the PostGIS-enabled PostgreSQL image
+    container_name: inventory-db
+    environment:
+      POSTGRES_USER: inventory_user  # Database user
+      POSTGRES_PASSWORD: inventory_pass  # Database password
+      POSTGRES_DB: inventory_db  # Database name
+    ports:
+      - "5432:5432"
+    networks:
+      - inventory-network
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: .
+    container_name: inventory-web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: inventory-db  # DB hostname to match the db service name
+      DB_NAME: inventory_db  # Database name
+      DB_USER: inventory_user  # Database user
+      DB_PASSWORD: inventory_pass  # Database password
+      DB_PORT: 5432
+    depends_on:
+      - db
+    networks:
+      - inventory-network
+
+networks:
+  inventory-network:
+
+volumes:
+  inventory_data:
