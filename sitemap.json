@@ -1,0 +1,21 @@
+[
+  {
+    "United States": "us",
+    "locations": [
+      {
+        "California": "us/california"
+      }
+    ]
+  },
+  {
+    "United States of America": "us",
+    "locations": [
+      {
+        "California": "us/california"
+      },
+      {
+        "United States of America": "us/united-states-of-america"
+      }
+    ]
+  }
+]

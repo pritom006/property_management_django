@@ -44,11 +44,17 @@ class Accommodation(models.Model):
     def __str__(self):
         return self.title
 
+    # def shorten_url(url, max_length=300):
+    #     if len(url) > max_length:
+    #         return url[:max_length - 3] + "..."
+    #     return url
+
     def save(self, *args, **kwargs):
         # Automatically set the logged-in user if it's not already set
         if not self.user_id:
             from django.contrib.auth import get_user_model
             self.user_id = get_user_model().objects.first()  # Use the first user as a fallback if no user is provided
+            # self.images = [shorten_url(img, 300) for img in self.images]
         super().save(*args, **kwargs)
 
 # Signal to create a user and set user_id if not provided
@@ -65,6 +71,17 @@ def set_user_on_save(sender, instance, **kwargs):
         print(f"Created new user {user.username} and set it to accommodation.")
 
 
+
+class AccommodationImage(models.Model):
+    accommodation = models.ForeignKey(
+        Accommodation,
+        on_delete=models.CASCADE,
+        related_name="accommodation_images"
+    )
+    image = models.ImageField(upload_to='accommodations/images/')
+
+    def __str__(self):
+        return f"Image for {self.accommodation.title}"
 
 
 class LocalizeAccommodation(models.Model):
