@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     libgdal-dev \
     libgeos-dev \
+    postgis \
     && apt-get clean
 
 # Copy project files to container

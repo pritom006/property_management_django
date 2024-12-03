@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.gis.db import models as geomodels
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.db.models import JSONField
@@ -33,7 +33,7 @@ class Accommodation(models.Model):
     review_score = models.DecimalField(max_digits=3, decimal_places=1, default=0)  # Review score, numeric (1 decimal place)
     usd_rate = models.DecimalField(max_digits=10, decimal_places=2)  # Price rate in USD, numeric (2 decimal places)
     center = geomodels.PointField()  # Geolocation (PostGIS Point field)
-    images = ArrayField(models.CharField(max_length=300), default=list)  # Array of image URLs, default is an empty list
+    images = ArrayField(models.CharField(max_length=300), default=list, blank=True)  # Array of image URLs, default is an empty list
     location_id = models.ForeignKey('Location', on_delete=models.CASCADE)  # Foreign key to Location model
     amenities = models.JSONField()  # JSONB array for amenities, each amenity max 100 characters
     user_id = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Foreign key to User model (auth_user)
@@ -56,6 +56,11 @@ class Accommodation(models.Model):
             self.user_id = get_user_model().objects.first()  # Use the first user as a fallback if no user is provided
             # self.images = [shorten_url(img, 300) for img in self.images]
         super().save(*args, **kwargs)
+        if self.pk:
+            self.images = [image.image.url for image in self.accommodation_images.all()]
+        super().save(*args, **kwargs)
+
+
 
 # Signal to create a user and set user_id if not provided
 @receiver(pre_save, sender=Accommodation)
@@ -83,6 +88,23 @@ class AccommodationImage(models.Model):
     def __str__(self):
         return f"Image for {self.accommodation.title}"
 
+
+# Signals to update the images field in Accommodation
+@receiver(post_save, sender=AccommodationImage)
+@receiver(post_delete, sender=AccommodationImage)
+def update_accommodation_images(sender, instance, **kwargs):
+    """
+    Update the images array in the Accommodation model whenever an AccommodationImage is added or deleted.
+    """
+    accommodation = instance.accommodation
+    if accommodation:
+        # Update the images array with all related AccommodationImage URLs
+        accommodation.images = [
+            image.image.url
+            for image in accommodation.accommodation_images.all()
+            if image.image
+        ]
+        accommodation.save()
 
 class LocalizeAccommodation(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-incremented primary key
