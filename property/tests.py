@@ -7,6 +7,7 @@ from .models import Location, Accommodation, SignUpRequest
 from .forms import SignUpRequestForm
 from django.core.exceptions import ValidationError
 
+
 class LocationTestCase(TestCase):
     def setUp(self):
         self.location = Location.objects.create(
@@ -30,16 +31,16 @@ class LocationTestCase(TestCase):
     def test_invalid_location_creation(self):
         location = Location(
             id="LOC002",
-            title="", 
+            title="",
             center=Point(1.0, 1.0),
-            location_type="Invalid",  
-            country_code="ZZ",  
-            state_abbr="XX", 
-            city=""  
+            location_type="Invalid",
+            country_code="ZZ",
+            state_abbr="XX",
+            city=""
         )
-        
-        with self.assertRaises(ValidationError): 
-            location.full_clean()  
+
+        with self.assertRaises(ValidationError):
+            location.full_clean()
 
 
 class AccommodationTestCase(TestCase):
@@ -97,7 +98,8 @@ class SignUpViewTestCase(TestCase):
     def test_sign_up_view_post(self):
         response = self.client.post(
             reverse("sign_up"),
-            {"username": "newuser", "email": "newuser@example.com", "password": "securepassword123"},
+            {"username": "newuser", "email": "newuser@example.com",
+                "password": "securepassword123"},
         )
         self.assertEqual(response.status_code, 302)
 
@@ -112,20 +114,25 @@ class SignUpViewTestCase(TestCase):
 
 class ApproveUserViewTestCase(TestCase):
     def setUp(self):
-        self.staff_user = User.objects.create_user(username="staff", is_staff=True, password="staffpass")
-        self.normal_user = User.objects.create_user(username="normal", password="normalpass")
+        self.staff_user = User.objects.create_user(
+            username="staff", is_staff=True, password="staffpass")
+        self.normal_user = User.objects.create_user(
+            username="normal", password="normalpass")
 
     def test_approve_user_as_staff(self):
         self.client.login(username="staff", password="staffpass")
-        response = self.client.post(reverse("approve_user", args=[self.normal_user.id]))
-        self.assertEqual(response.status_code, 403)
+        response = self.client.post(
+            reverse("approve_user", args=[self.normal_user.id]))
+        self.assertEqual(response.status_code, 302)
         self.normal_user.refresh_from_db()
         self.assertTrue(self.normal_user.is_staff)
 
     def test_approve_user_as_non_staff(self):
         self.client.login(username="normal", password="normalpass")
-        response = self.client.post(reverse("approve_user", args=[self.staff_user.id]))
+        response = self.client.post(
+            reverse("approve_user", args=[self.staff_user.id]))
         self.assertEqual(response.status_code, 403)
+
 
 class SignUpRequestFormTestCase(TestCase):
     def test_valid_form(self):

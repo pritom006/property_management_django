@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
+
 class SignUpRequestForm(forms.ModelForm):
     class Meta:
         model = User

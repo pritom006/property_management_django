@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from property.models import Location
 from django.contrib.gis.geos import Point
 
+
 class Command(BaseCommand):
     help = 'Populates initial location data'
 
@@ -62,4 +63,5 @@ class Command(BaseCommand):
                     "parent_id": Location.objects.filter(id=location.get("parent_id")).first() if location.get("parent_id") else None,
                 }
             )
-        self.stdout.write(self.style.SUCCESS("Successfully populated initial location data."))
+        self.stdout.write(self.style.SUCCESS(
+            "Successfully populated initial location data."))

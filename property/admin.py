@@ -3,8 +3,7 @@ from .models import Location, Accommodation, LocalizeAccommodation, Accommodatio
 from django.core.exceptions import PermissionDenied
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
-#from django.contrib.gis.admin import OSMGeoAdmin
-
+# from django.contrib.gis.admin import OSMGeoAdmin
 
 
 class AccommodationImageInline(admin.TabularInline):
@@ -12,21 +11,17 @@ class AccommodationImageInline(admin.TabularInline):
     extra = 1  # Show 1 extra empty field for new uploads
     fields = ['image']
 
-
     def has_add_permission(self, request, obj=None):
-        # Only allow adding images if the user is the owner or a superuser
         if not request.user.is_superuser and obj and obj.user_id != request.user:
             return False
         return True
 
     def has_change_permission(self, request, obj=None):
-        # Only allow modifying images if the user is the owner or a superuser
         if not request.user.is_superuser and obj and obj.user_id != request.user:
             return False
         return True
 
     def has_delete_permission(self, request, obj=None):
-        # Only allow deleting images if the user is the owner or a superuser
         if not request.user.is_superuser and obj and obj.user_id != request.user:
             return False
         return True
@@ -36,28 +31,32 @@ class AccommodationImageInline(admin.TabularInline):
         Ensure AccommodationImage updates trigger images field update in Accommodation.
         """
         super().save_new_inline(request, parent_obj, form, change)
-        parent_obj.save() 
+        parent_obj.save()
 
 
 class LocationResource(resources.ModelResource):
     class Meta:
         model = Location
-        fields = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'center', 'parent_id')
-        export_order = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'center', 'parent_id')
+        fields = ('id', 'title', 'location_type', 'country_code',
+                  'state_abbr', 'city', 'center', 'parent_id')
+        export_order = ('id', 'title', 'location_type', 'country_code',
+                        'state_abbr', 'city', 'center', 'parent_id')
 
 
 # Admin for Location
 class LocationAdmin(ImportExportModelAdmin):
     resource_class = LocationResource
-    list_display = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'created_at', 'updated_at')
-    search_fields = ['title', 'location_type', 'country_code', 'state_abbr', 'city']
+    list_display = ('id', 'title', 'location_type', 'country_code',
+                    'state_abbr', 'city', 'created_at', 'updated_at')
+    search_fields = ['title', 'location_type',
+                     'country_code', 'state_abbr', 'city']
     list_filter = ('location_type', 'country_code', 'state_abbr')
 
 
 # Admin for Accommodation
 class AccommodationAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'country_code', 'bedroom_count', 'review_score', 
+        'id', 'title', 'country_code', 'bedroom_count', 'review_score',
         'usd_rate', 'published', 'location_id', 'created_at', 'updated_at'
     )
     search_fields = ['title', 'country_code', 'location_id__title']
@@ -97,7 +96,8 @@ class AccommodationAdmin(admin.ModelAdmin):
         """
         if not request.user.is_superuser:
             if change and obj.user_id != request.user:
-                raise ValueError("You are not allowed to modify this accommodation.")
+                raise ValueError(
+                    "You are not allowed to modify this accommodation.")
             # Set user_id to the current logged-in staff admin for new accommodations
             if not obj.user_id:
                 obj.user_id = request.user
