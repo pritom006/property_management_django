@@ -10,6 +10,10 @@ from .forms import SignUpRequestForm
 from django.contrib.admin.views.decorators import staff_member_required
 
 
+def index(request):
+    return HttpResponse("Go to the SignUp Page -> http://0.0.0.0:8000/sign-up")
+
+
 @csrf_exempt
 def sign_up_view(request):
     if request.method == "POST":
