@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Location, Accommodation, LocalizeAccommodation, AccommodationImage
 from django.core.exceptions import PermissionDenied
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 #from django.contrib.gis.admin import OSMGeoAdmin
 
 
@@ -36,8 +38,17 @@ class AccommodationImageInline(admin.TabularInline):
         super().save_new_inline(request, parent_obj, form, change)
         parent_obj.save() 
 
+
+class LocationResource(resources.ModelResource):
+    class Meta:
+        model = Location
+        fields = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'center', 'parent_id')
+        export_order = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'center', 'parent_id')
+
+
 # Admin for Location
-class LocationAdmin(admin.ModelAdmin):
+class LocationAdmin(ImportExportModelAdmin):
+    resource_class = LocationResource
     list_display = ('id', 'title', 'location_type', 'country_code', 'state_abbr', 'city', 'created_at', 'updated_at')
     search_fields = ['title', 'location_type', 'country_code', 'state_abbr', 'city']
     list_filter = ('location_type', 'country_code', 'state_abbr')
