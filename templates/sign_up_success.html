@@ -3,8 +3,14 @@
 {% block title %}Sign Up Successful{% endblock %}
 
 {% block content %}
-  <h2>Sign Up Successful!</h2>
-  <p>You have successfully signed up. Please wait for admin approval.</p>
-  <p>Once approved, you can log in to your account.</p>
-  <a href="{% url 'login' %}">Go to Login</a>
+<div class="d-flex justify-content-center align-items-center mt-5">
+  <div class="card shadow" style="width: 28rem;">
+    <div class="card-body text-center">
+      <h2 class="card-title">Sign Up Successful!</h2>
+      <p class="card-text">You have successfully signed up. Please wait for admin approval.</p>
+      <p class="card-text">Once approved, you can log in to your account.</p>
+      <a href="{% url 'login' %}" class="btn btn-primary w-100">Go to Login</a>
+    </div>
+  </div>
+</div>
 {% endblock %}
