@@ -24,8 +24,7 @@ class Command(BaseCommand):
                 parent_id=country.id).order_by("title")
             for child in child_locations:
                 child_data = {
-                    child.title: f"{country.country_code.lower(
-                    )}/{child.title.lower().replace(' ', '-')}"
+                   child.title: f"{country.country_code.lower()}/{child.title.lower().replace(' ', '-')}"
                 }
                 country_data["locations"].append(child_data)
 

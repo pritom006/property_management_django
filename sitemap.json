@@ -8,6 +8,23 @@
     ]
   },
   {
+    "United States": "us",
+    "locations": [
+      {
+        "California": "us/california"
+      },
+      {
+        "Florida": "us/florida"
+      },
+      {
+        "New York": "us/new-york"
+      },
+      {
+        "Texas": "us/texas"
+      }
+    ]
+  },
+  {
     "United States of America": "us",
     "locations": [
       {
