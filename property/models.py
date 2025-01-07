@@ -6,6 +6,8 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.db.models import JSONField
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Location(models.Model):
@@ -32,7 +34,11 @@ class Accommodation(models.Model):
     country_code = models.CharField(max_length=2)
     bedroom_count = models.PositiveIntegerField(null=True, blank=True)
     review_score = models.DecimalField(
-        max_digits=3, decimal_places=1, default=0)
+        max_digits=3, 
+        decimal_places=1, 
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(5)]
+    )
     usd_rate = models.DecimalField(max_digits=10, decimal_places=2)
     center = geomodels.PointField()
     images = ArrayField(models.CharField(max_length=300),
@@ -45,24 +51,38 @@ class Accommodation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['created_at']
+        verbose_name = 'Accommodation'
+        verbose_name_plural = 'Accommodations'
+
     def __str__(self):
         return self.title
 
-    # def shorten_url(url, max_length=300):
-    #     if len(url) > max_length:
-    #         return url[:max_length - 3] + "..."
-    #     return url
+
+
+    # def save(self, *args, **kwargs):
+    #     if not self.user_id:
+    #         from django.contrib.auth import get_user_model
+    #         self.user_id = get_user_model().objects.first()
+    #         # self.images = [shorten_url(img, 300) for img in self.images]
+    #     super().save(*args, **kwargs)
+    #     if self.pk:
+    #         self.images = [
+    #             image.image.url for image in self.accommodation_images.all()]
+    #     super().save(*args, **kwargs)
+
 
     def save(self, *args, **kwargs):
         if not self.user_id:
-            from django.contrib.auth import get_user_model
-            self.user_id = get_user_model().objects.first()
-            # self.images = [shorten_url(img, 300) for img in self.images]
+            self.user_id = User.objects.first()  
         super().save(*args, **kwargs)
-        if self.pk:
-            self.images = [
-                image.image.url for image in self.accommodation_images.all()]
-        super().save(*args, **kwargs)
+        self.images = [image.image.url for image in self.accommodation_images.all()]
+        super().save(update_fields=['images'])  
+
+    def clean(self):
+        if self.usd_rate < 0:
+            raise ValidationError("USD rate must be positive.")
 
 
 # Signal to create a user and set user_id if not provided

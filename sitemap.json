@@ -4,14 +4,6 @@
     "locations": [
       {
         "California": "us/california"
-      }
-    ]
-  },
-  {
-    "United States": "us",
-    "locations": [
-      {
-        "California": "us/california"
       },
       {
         "Florida": "us/florida"
@@ -21,6 +13,14 @@
       },
       {
         "Texas": "us/texas"
+      }
+    ]
+  },
+  {
+    "United States": "us",
+    "locations": [
+      {
+        "California": "us/california"
       }
     ]
   },
